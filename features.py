@@ -2,6 +2,7 @@ import os
 import json_lines
 import csv
 import time
+import pandas as pd
 '''
   ### Fields in instances.jsonl:
   { 
@@ -33,11 +34,15 @@ import time
   }
 '''
 
-FOLDER = 'data-medium'
-DATAFILE = 'instances.jsonl'
+FOLDER = 'data-small'
+INSTANCES = 'instances.jsonl'
+TRUTH = 'truth.jsonl'
 
 FEATURES = 'features.csv'
 
+truth = None
+if (os.path.isfile(os.path.join(FOLDER, TRUTH))):
+  truth = pd.read_json(os.path.join(FOLDER, TRUTH), dtype={'id':str}, lines=True)
 
 def compute_features(instance):
     features = [instance['id']]
@@ -55,19 +60,22 @@ def compute_features(instance):
     features.append(word_length(instance['targetKeywords']))
 
     #Word / char distance
-    fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
-    for i in range(len(fields)):
-        for j in range(i+1, len(fields)):
-            a = fields[i]
-            b = fields[j]
+    # fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
+    # for i in range(len(fields)):
+    #     for j in range(i+1, len(fields)):
+    #         a = fields[i]
+    #         b = fields[j]
 
-            if isinstance(instance[a], list):
-                features.append(distance(char_length(instance[a][0]), char_length(instance[b])))
-                features.append(distance(word_length(instance[a][0]), word_length(instance[b])))
+    #         if isinstance(instance[a], list):
+    #             features.append(distance(char_length(instance[a][0]), char_length(instance[b])))
+    #             features.append(distance(word_length(instance[a][0]), word_length(instance[b])))
 
-            else :
-                features.append(distance(char_length(instance[a]), char_length(instance[b])))
-                features.append(distance(word_length(instance[a]), word_length(instance[b])))
+    #         else :
+    #             features.append(distance(char_length(instance[a]), char_length(instance[b])))
+    #             features.append(distance(word_length(instance[a]), word_length(instance[b])))
+    
+    if truth is not None:
+      features.append(truth.loc[truth['id'] == instance['id'], 'truthClass'].item())
 
     return features
 
@@ -80,16 +88,16 @@ def word_length(line):
 def distance(a, b):
     return abs(a - b)
 
-print(os.path.join(FOLDER,DATAFILE, os.path.join(FOLDER,FEATURES)))
+print(os.path.join(FOLDER,INSTANCES, os.path.join(FOLDER,FEATURES)))
 
 currentLine = 1
 
 start_time = time.time()
 
-
-with open(os.path.join(FOLDER,DATAFILE), 'rb') as file :
+with open(os.path.join(FOLDER,INSTANCES), 'rb') as file :
     with open(os.path.join(FOLDER,FEATURES), "w") as out:
         out_writer = csv.writer(out)
+        out_writer.writerow(['id', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'truthClass'])
         for line in json_lines.reader(file):
             if not line:
                 break
