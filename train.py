@@ -39,7 +39,7 @@ def trainXGBoost(train_file):
     train.drop(columns=['id','truthClass'], axis = 1, inplace = True)
 
     params = {
-        'objective': 'reg:logistic'
+        'objective': 'binary:hinge'
     }
 
     dtrain = xgb.DMatrix(train, label = truth)
@@ -56,6 +56,7 @@ def trainClassifiers():
     extractFeatures(argv[0])
 
     trainXGBoost(FEATURES)
+    print('\n\n')
     trainRandomForrest(FEATURES)
 
 

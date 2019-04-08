@@ -3,6 +3,7 @@ import json_lines
 import csv
 import time
 import pandas as pd
+import re
 '''
   ### Fields in instances.jsonl:
   { 
@@ -72,6 +73,19 @@ def compute_features(instance, truth_data):
                 features.append(distance(char_length(instance[a]), char_length(instance[b])))
                 features.append(distance(word_length(instance[a]), word_length(instance[b])))
     
+    for field in fields:
+      print(field)
+      if isinstance(instance[field], list):
+        field = instance[field][0]
+        print(field)
+
+
+      features.append(field.count('?'))
+      features.append(field.count('!'))
+      features.append(len(re.findall(r"(?<!#)#(?![#\s])", field)))
+      features.append(len(re.findall(r"^\d.*", field)))
+
+
     if truth_data is not None:
       features.append(truth_data.loc[truth_data['id'] == instance['id'], 'truthClass'].item())
 
@@ -91,6 +105,16 @@ def computeFeatureHeader():
       for j in range(i+1, len(fields)):
         header.append("diff_chars_"+fields[i]+fields[j])
         header.append("diff_words_"+fields[i]+fields[j])
+  
+  for f in fields:
+    # Amount of ?
+    header.append("#?_" + f)
+    # Amount of !
+    header.append("#!_" + f)
+    # Amount of hashtags
+    header.append("#hashtags_" + f)
+    # Starts with number or not
+    header.append("#^\\d_" + f)
 
   header.append("truthClass")
 
@@ -99,13 +123,13 @@ def computeFeatureHeader():
 
 
 def char_length(line):
-    return len(line)
+  return len(line)
 
 def word_length(line):
-    return len(line.split())
+  return len(line.split())
 
 def distance(a, b):
-    return abs(a - b)
+  return abs(a - b)
 
 def extractFeatures(inDir):
   print("Starting feature generation")

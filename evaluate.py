@@ -37,6 +37,7 @@ def evaluateResults(predicted, actual, test):
   
   # print('accuracy', (pd.Series(predicted) == actual).sum()/len(actual))
 
+  print('mse', ((predicted - actual)**2).mean())
   print("accuracy", (truePos+trueNeg)/len(actual))
   precision = divide_zero_is_999(truePos, truePos+falsePos)
   print("precision", precision)
@@ -45,7 +46,6 @@ def evaluateResults(predicted, actual, test):
   print("f1", divide_zero_is_999(2 * (precision*recall) , precision + recall ))
 
   print(pd.crosstab(test['truthClass'], predicted, rownames=['actual'], colnames=['predicted']))
-
 
 
 def evaluateRandomForrest(test, train):
@@ -58,8 +58,6 @@ def evaluateRandomForrest(test, train):
     predicted = results['clickbaitScore']
     test = test.replace({"truthClass": {"no-clickbait":0, "clickbait":1}})
     actual = pd.Series(test['truthClass']).to_numpy()
-
-    # actual = pd.factorize(train['truthClass'])[0]
 
     evaluateResults(predicted, actual, test)
     # Feature importance
@@ -76,12 +74,12 @@ def evaluateXGBoost(test, train):
     results = testXGBoost(EVAL_TEST)
 
     predicted = results['clickbaitScore']
-    predictedRounded = predicted.round()
+    # predictedRounded = predicted.round()
 
     test = test.replace({"truthClass": {"no-clickbait":0, "clickbait":1}})
     actual = pd.Series(test['truthClass']).to_numpy()
 
-    evaluateResults(predictedRounded, actual, test)
+    evaluateResults(predicted, actual, test)
     print(model.get_score(importance_type='cover'))
 
   
@@ -90,15 +88,19 @@ def evaluateXGBoost(test, train):
 def evaluateClassifiers():
     argv = sys.argv[1:]
     
+    # If dir is specified recompute features
     if len(argv) != 0:
       extractFeatures(argv[0])
 
+    # Load features and split in test/train
     data = pd.read_csv(FEATURES)
     train, test = train_test_split(data, test_size = 0.2, random_state=1)
 
+    # Write as training and testing expect to read from file
     train.to_csv(EVAL_TRAIN)
     test.to_csv(EVAL_TEST)
 
+    # Evaluate both classifiers
     evaluateRandomForrest(test, train)
     evaluateXGBoost(test, train)
 
