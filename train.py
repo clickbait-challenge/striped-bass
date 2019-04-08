@@ -3,12 +3,15 @@ from sklearn.externals import joblib
 import xgboost as xgb
 import pandas as pd
 import time
+import sys
+
+from features import extractFeatures, FEATURES
 
 RANDOM_FORREST_CLASSIFIER = 'randomforrest.joblib'
 XGBOOST_MODEL = 'xgboost.model'
 
 
-def trainRandomForrest(train_file, outDir):
+def trainRandomForrest(train_file):
     print("Starting Training RandomForrest")
     start_time = time.time()
 
@@ -44,3 +47,14 @@ def trainXGBoost(train_file):
     print("XGBoost training took {}".format(time.time() - start_time))
     return model
 
+def trainClassifiers():
+    argv = sys.argv[1:]
+
+    extractFeatures(argv[0])
+
+    trainXGBoost(FEATURES)
+    trainRandomForrest(FEATURES)
+
+
+if __name__ == "__main__":
+    trainClassifiers()

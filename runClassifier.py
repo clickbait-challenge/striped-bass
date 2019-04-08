@@ -3,8 +3,9 @@ import getopt
 import os
 
 from features import extractFeatures
-from train import trainRandomForrest, trainXGBoost
+from train import trainRandomForrest, trainXGBoost, RANDOM_FORREST_CLASSIFIER, XGBOOST_MODEL
 from test import testRandomForrest, testXGBoost
+
 
 def main():
 
@@ -41,9 +42,15 @@ def main():
     extractFeatures(inDir)
     
     if classifier == 'randomforrest':
+        if not os.path.exists(RANDOM_FORREST_CLASSIFIER):
+            print('Could not find trained RandomForrestClassifier')
+            sys.exit(2)
         testRandomForrest('features.csv', outDir)
 
     if classifier == 'xgboost':
+        if not os.path.exists(XGBOOST_MODEL):
+            print('Can not find trained XGBoost model')
+            sys.exit(2)
         testXGBoost('features.csv', outDir)
     
     

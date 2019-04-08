@@ -108,8 +108,8 @@ def extractFeatures(inDir):
               out_writer.writerow(features)
 
               currentLine += 1
-              if (currentLine % 1000) == 0:
-                print("Processed {} lines".format(currentLine), end="\r")
+              # if (currentLine % 1000) == 0:
+              print("Processed {} lines".format(currentLine), end="\r")
 
   print("Feature generation took {}".format(time.time() - start_time))
 

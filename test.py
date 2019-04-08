@@ -2,9 +2,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 import xgboost as xgb
 import pandas as pd
-from train import RANDOM_FORREST_CLASSIFIER, XGBOOST_MODEL
 import time
 import os
+
+from train import RANDOM_FORREST_CLASSIFIER, XGBOOST_MODEL
 
 '''
   ### Fields your classifier should write into a results.jsonl file
