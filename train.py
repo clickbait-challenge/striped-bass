@@ -19,7 +19,7 @@ def trainRandomForrest(train_file):
     truth = pd.factorize(train['truthClass'])[0]
     train.drop(columns=['id','truthClass'], axis = 1, inplace = True)
 
-    clf = RandomForestClassifier()
+    clf = RandomForestClassifier(n_estimators=100)
     clf.fit(train, truth)
     joblib.dump(clf, RANDOM_FORREST_CLASSIFIER)
 

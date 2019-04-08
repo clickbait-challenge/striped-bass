@@ -15,7 +15,7 @@ from train import RANDOM_FORREST_CLASSIFIER, XGBOOST_MODEL
   }
 '''
 
-def testRandomForrest(test_file, outDir):
+def testRandomForrest(test_file, outDir="./"):
     print("Starting RandomForrest")
     start_time = time.time()
 
@@ -32,9 +32,7 @@ def testRandomForrest(test_file, outDir):
     print("Random Forrest training {}".format(time.time() - start_time))
     return results
 
-# testRandomForrest('data-small/features.csv')
-
-def testXGBoost(test_file, outDir):
+def testXGBoost(test_file, outDir="./"):
     print("Starting XGBoost")
     start_time = time.time()
 
@@ -53,6 +51,4 @@ def testXGBoost(test_file, outDir):
 
     print("XGBoost took {}".format(time.time() - start_time))
     return results
-
-# testXGBoost('data-small/features.csv')
 
