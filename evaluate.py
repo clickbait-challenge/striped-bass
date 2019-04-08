@@ -7,6 +7,7 @@ import pandas as pd
 import time
 import os
 import sys
+import numpy
 
 from train import RANDOM_FORREST_CLASSIFIER, XGBOOST_MODEL
 from features import extractFeatures, FEATURES
@@ -55,7 +56,10 @@ def evaluateRandomForrest(test, train):
     results = testRandomForrest(EVAL_TEST)
 
     predicted = results['clickbaitScore']
-    actual = pd.factorize(test['truthClass'])[0]
+    test = test.replace({"truthClass": {"no-clickbait":0, "clickbait":1}})
+    actual = pd.Series(test['truthClass']).to_numpy()
+
+    # actual = pd.factorize(train['truthClass'])[0]
 
     evaluateResults(predicted, actual, test)
     # Feature importance
@@ -68,22 +72,26 @@ def evaluateXGBoost(test, train):
     print("Starting XGBoost eval")
     start_time = time.time()
 
-    clf = trainXGBoost(EVAL_TRAIN)
+    model = trainXGBoost(EVAL_TRAIN)
     results = testXGBoost(EVAL_TEST)
 
     predicted = results['clickbaitScore']
     predictedRounded = predicted.round()
 
-    actual = pd.factorize(test['truthClass'])[0]
+    test = test.replace({"truthClass": {"no-clickbait":0, "clickbait":1}})
+    actual = pd.Series(test['truthClass']).to_numpy()
 
     evaluateResults(predictedRounded, actual, test)
+    print(model.get_score(importance_type='cover'))
+
   
     print("XGBoost eval took {}".format(time.time() - start_time))
 
 def evaluateClassifiers():
     argv = sys.argv[1:]
-
-    extractFeatures(argv[0])
+    
+    if len(argv) != 0:
+      extractFeatures(argv[0])
 
     data = pd.read_csv(FEATURES)
     train, test = train_test_split(data, test_size = 0.2, random_state=1)

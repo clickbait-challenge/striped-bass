@@ -58,24 +58,45 @@ def compute_features(instance, truth_data):
     features.append(word_length(instance['targetKeywords']))
 
     #Word / char distance
-    # fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
-    # for i in range(len(fields)):
-    #     for j in range(i+1, len(fields)):
-    #         a = fields[i]
-    #         b = fields[j]
+    fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
+    for i in range(len(fields)):
+        for j in range(i+1, len(fields)):
+            a = fields[i]
+            b = fields[j]
 
-    #         if isinstance(instance[a], list):
-    #             features.append(distance(char_length(instance[a][0]), char_length(instance[b])))
-    #             features.append(distance(word_length(instance[a][0]), word_length(instance[b])))
+            if isinstance(instance[a], list):
+                features.append(distance(char_length(instance[a][0]), char_length(instance[b])))
+                features.append(distance(word_length(instance[a][0]), word_length(instance[b])))
 
-    #         else :
-    #             features.append(distance(char_length(instance[a]), char_length(instance[b])))
-    #             features.append(distance(word_length(instance[a]), word_length(instance[b])))
+            else :
+                features.append(distance(char_length(instance[a]), char_length(instance[b])))
+                features.append(distance(word_length(instance[a]), word_length(instance[b])))
     
     if truth_data is not None:
       features.append(truth_data.loc[truth_data['id'] == instance['id'], 'truthClass'].item())
 
     return features
+
+def computeFeatureHeader():
+  header = ['id']
+  fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
+
+  for f in fields:
+    header.append("chars_" + f)
+
+  for f in fields:
+    header.append("words_" + f)
+
+  for i in range(len(fields)):
+      for j in range(i+1, len(fields)):
+        header.append("diff_chars_"+fields[i]+fields[j])
+        header.append("diff_words_"+fields[i]+fields[j])
+
+  header.append("truthClass")
+
+  return header
+
+
 
 def char_length(line):
     return len(line)
@@ -99,7 +120,7 @@ def extractFeatures(inDir):
   with open(os.path.join(inDir, INSTANCES), 'rb') as file :
       with open(FEATURES, "w") as out:
           out_writer = csv.writer(out)
-          out_writer.writerow(['id', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'truthClass'])
+          out_writer.writerow(computeFeatureHeader())
           for line in json_lines.reader(file):
               if not line:
                   break

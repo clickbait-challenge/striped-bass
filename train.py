@@ -16,7 +16,8 @@ def trainRandomForrest(train_file):
     start_time = time.time()
 
     train = pd.read_csv(train_file)
-    truth = pd.factorize(train['truthClass'])[0]
+    train.replace({"truthClass": {"no-clickbait":0, "clickbait":1}}, inplace = True)
+    truth = train['truthClass']
     train.drop(columns=['id','truthClass'], axis = 1, inplace = True)
 
     clf = RandomForestClassifier(n_estimators=100)
@@ -32,7 +33,9 @@ def trainXGBoost(train_file):
     start_time = time.time()
 
     train = pd.read_csv(train_file)
-    truth = pd.factorize(train['truthClass'])[0]
+    train.replace({"truthClass": {"no-clickbait":0, "clickbait":1}}, inplace = True)
+    truth = train['truthClass']
+
     train.drop(columns=['id','truthClass'], axis = 1, inplace = True)
 
     params = {
