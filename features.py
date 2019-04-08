@@ -17,7 +17,7 @@ import pandas as pd
     "targetCaptions": ["<caption of the ith image in the target article>"]
   }
 
-  ### Fields in truth.jsonl:
+  ### Fields in truth_data.jsonl:
   {
     "id": "<instance id>",
     "truthJudgments": [<number in [0,1]>],
@@ -34,17 +34,15 @@ import pandas as pd
   }
 '''
 
-FOLDER = 'data-small'
 INSTANCES = 'instances.jsonl'
 TRUTH = 'truth.jsonl'
 
 FEATURES = 'features.csv'
 
-truth = None
-if (os.path.isfile(os.path.join(FOLDER, TRUTH))):
-  truth = pd.read_json(os.path.join(FOLDER, TRUTH), dtype={'id':str}, lines=True)
+global truth_data
+truth_data = None
 
-def compute_features(instance):
+def compute_features(instance, truth_data):
     features = [instance['id']]
 
     #Char lengths
@@ -74,8 +72,8 @@ def compute_features(instance):
     #             features.append(distance(char_length(instance[a]), char_length(instance[b])))
     #             features.append(distance(word_length(instance[a]), word_length(instance[b])))
     
-    if truth is not None:
-      features.append(truth.loc[truth['id'] == instance['id'], 'truthClass'].item())
+    if truth_data is not None:
+      features.append(truth_data.loc[truth_data['id'] == instance['id'], 'truthClass'].item())
 
     return features
 
@@ -88,30 +86,37 @@ def word_length(line):
 def distance(a, b):
     return abs(a - b)
 
-print(os.path.join(FOLDER,INSTANCES, os.path.join(FOLDER,FEATURES)))
+def extractFeatures(inDir):
+  print("Starting feature generation")
 
-currentLine = 1
+  if (os.path.isfile(os.path.join(inDir, TRUTH))):
+    print("Truth file found")
+    truth_data = pd.read_json(os.path.join(inDir, TRUTH), dtype={'id':str}, lines=True)
 
-start_time = time.time()
+  currentLine = 1
+  start_time = time.time()
 
-with open(os.path.join(FOLDER,INSTANCES), 'rb') as file :
-    with open(os.path.join(FOLDER,FEATURES), "w") as out:
-        out_writer = csv.writer(out)
-        out_writer.writerow(['id', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'truthClass'])
-        for line in json_lines.reader(file):
-            if not line:
-                break
+  with open(os.path.join(inDir, INSTANCES), 'rb') as file :
+      with open(FEATURES, "w") as out:
+          out_writer = csv.writer(out)
+          out_writer.writerow(['id', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'truthClass'])
+          for line in json_lines.reader(file):
+              if not line:
+                  break
 
-            features = compute_features(line)
-            out_writer.writerow(features)
+              features = compute_features(line, truth_data)
+              out_writer.writerow(features)
 
-            currentLine += 1
-            if (currentLine % 100) == 0:
-               print("Processed {} lines".format(currentLine), end="\r")
+              currentLine += 1
+              if (currentLine % 1000) == 0:
+                print("Processed {} lines".format(currentLine), end="\r")
+
+  print("Feature generation took {}".format(time.time() - start_time))
 
 
-print("Took {}".format(time.time() - start_time))
 
+if __name__ == "__main__":
+    extractFeatures('data-small')
     
     
 

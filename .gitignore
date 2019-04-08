@@ -3,3 +3,4 @@ data-*
 *.model
 *.jsonl
 *.pyc
+*.csv
