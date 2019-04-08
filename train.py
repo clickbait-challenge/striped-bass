@@ -7,22 +7,6 @@ RANDOM_FORREST_CLASSIFIER = 'randomforrest.joblib'
 XGBOOST_MODEL = 'xgboost.model'
 
 def trainRandomForrest(train_file):
-
-    # train = pd.read_csv(train_file, index_col=0)
-    # train = train.sort_index()
-
-    # truth = pd.read_json(truth_file, lines=True)
-    # truth.set_index('id', inplace=True)
-    # truth = truth.sort_index()
-    # truth = truth[['truthClass']]
-    # truth['truth'] = pd.factorize(truth['truthClass'])[0]
-    # print(truth.head(), end='\n\n\n')
-    # print(train.head())
-
-    # # Drop train data columns
-    # # train =  train.drop(train.columns[0], axis = 1)
-    # print(len(train), len(truth))
-
     train = pd.read_csv(train_file)
     print(train.head())
 
