@@ -8,12 +8,8 @@ XGBOOST_MODEL = 'xgboost.model'
 
 def trainRandomForrest(train_file):
     train = pd.read_csv(train_file)
-    print(train.head())
-
     truth = pd.factorize(train['truthClass'])[0]
     train.drop(columns=['id','truthClass'], axis = 1, inplace = True)
-    
-    print(train.head())
 
     clf = RandomForestClassifier()
     clf.fit(train, truth)
@@ -23,10 +19,8 @@ def trainRandomForrest(train_file):
 
 def trainXGBoost(train_file):
     train = pd.read_csv(train_file)
-    print(train.head())
     truth = pd.factorize(train['truthClass'])[0]
     train.drop(columns=['id','truthClass'], axis = 1, inplace = True)
-    print(train.head())
 
     params = {
         'objective': 'reg:logistic'
