@@ -2,8 +2,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import pandas as pd
 
 
-PATH_TO_INPUT = 'instances.jsonl'
-TRUTH = 'truth.jsonl'
+PATH_TO_INPUT = 'data-medium/instances.jsonl'
+TRUTH = 'data-medium/truth.jsonl'
 PATH_TO_FILE = 'features.csv'
 
 analyser = SentimentIntensityAnalyzer()
