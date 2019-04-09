@@ -7,7 +7,6 @@ The Striped Bass Clickbait Detector
 ### Additional python libraries
 * xgboost v. 0.82
 * sklearn v. 0.20.3
-* json_lines v. 0.5.0
 * pandas v. 0.24.1
 
 
