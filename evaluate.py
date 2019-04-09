@@ -63,7 +63,7 @@ def evaluateRandomForrest(test, train):
     evaluateResults(predicted, actual, test)
     # Feature importance
     feature_importance = pd.DataFrame(list(zip(train.drop(['id', 'truthClass'], axis=1), clf.feature_importances_)))
-    feature_importance.to_csv('eval_forrest_feat_imp.csv', index=True)
+    feature_importance.to_csv('eval_forrest_feature_importance.csv', index=True)
 
     print("Random Forrest eval took {}".format(time.time() - start_time))
 
@@ -82,8 +82,8 @@ def evaluateXGBoost(test, train):
 
     evaluateResults(predicted, actual, test)
 
-    gain = pd.DataFrame.from_dict(model.get_score(importance_type='gain'), orient='index')
-    gain.to_csv('eval_xgboost_gain.csv', index=True)
+    feature_importance = pd.DataFrame.from_dict(model.get_score(importance_type='gain'), orient='index')
+    feature_importance.to_csv('eval_xgboost_feature_importance.csv', index=True)
  
     print("XGBoost eval took {}".format(time.time() - start_time))
 
