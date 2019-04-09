@@ -8,6 +8,7 @@ import time
 import os
 import sys
 import numpy
+import json
 
 from train import RANDOM_FORREST_CLASSIFIER, XGBOOST_MODEL
 from features import extractFeatures, FEATURES
@@ -61,7 +62,8 @@ def evaluateRandomForrest(test, train):
 
     evaluateResults(predicted, actual, test)
     # Feature importance
-    print(list(zip(train.drop(['id', 'truthClass'], axis=1), clf.feature_importances_)))
+    feature_importance = pd.DataFrame(list(zip(train.drop(['id', 'truthClass'], axis=1), clf.feature_importances_)))
+    feature_importance.to_csv('eval_forrest_feat_imp.csv', index=True)
 
     print("Random Forrest eval took {}".format(time.time() - start_time))
 
@@ -74,15 +76,15 @@ def evaluateXGBoost(test, train):
     results = testXGBoost(EVAL_TEST)
 
     predicted = results['clickbaitScore']
-    # predictedRounded = predicted.round()
 
     test = test.replace({"truthClass": {"no-clickbait":0, "clickbait":1}})
     actual = pd.Series(test['truthClass']).to_numpy()
 
     evaluateResults(predicted, actual, test)
-    print(model.get_score(importance_type='cover'))
 
-  
+    gain = pd.DataFrame.from_dict(model.get_score(importance_type='gain'), orient='index')
+    gain.to_csv('eval_xgboost_gain.csv', index=True)
+ 
     print("XGBoost eval took {}".format(time.time() - start_time))
 
 def evaluateClassifiers():
