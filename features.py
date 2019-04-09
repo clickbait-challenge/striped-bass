@@ -94,8 +94,6 @@ def extractFeatures(inDir):
     data = pd.read_json(os.path.join(inDir, INSTANCES), dtype={'id': str}, lines=True)
     data['postText'] = data['postText'].apply(lambda x: x[0])
 
-    data2 = pd.DataFrame()
-    data2['id'] = data['id']
     data['processed_postText'] = data.postText.apply(lambda x: find_pos_tags(tokenize_words(''.join(x).lower())))
     data['processed_targetDescription'] = data.targetDescription.apply(lambda x: find_pos_tags(tokenize_words(x.lower())))
     data['processed_targetTitle'] = data.targetTitle.apply(lambda x: find_pos_tags(tokenize_words(x.lower())))
@@ -121,13 +119,13 @@ def extractFeatures(inDir):
         features['#^\d_' + f] = data[f].apply(lambda x: len(re.findall(r"^\d.*", x)))
 
     for x in fields_2:
-        features['count_nn' + x] = data2[x].apply(find_nn)
-        features['count_nnp' + x] = data2[x].apply(find_nnp)
-        features['count_dt' + x] = data2[x].apply(find_dt)
-        features['count_prp' + x] = data2[x].apply(find_prp)
-        features['count_rb' + x] = data2[x].apply(find_rb)
-        features['count_vbd' + x] = data2[x].apply(find_vbd)
-        features['count_vbp' + x] = data2[x].apply(find_vbp)
+        features['count_nn' + x] = data[x].apply(find_nn)
+        features['count_nnp' + x] = data[x].apply(find_nnp)
+        features['count_dt' + x] = data[x].apply(find_dt)
+        features['count_prp' + x] = data[x].apply(find_prp)
+        features['count_rb' + x] = data[x].apply(find_rb)
+        features['count_vbd' + x] = data[x].apply(find_vbd)
+        features['count_vbp' + x] = data[x].apply(find_vbp)
 
 
     for i in range(len(fields)):
