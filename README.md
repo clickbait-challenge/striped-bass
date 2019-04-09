@@ -8,6 +8,7 @@ The Striped Bass Clickbait Detector
 * xgboost v. 0.82
 * sklearn v. 0.20.3
 * pandas v. 0.24.1
+* nltk  v. 3.4
 
 
 ## Training
