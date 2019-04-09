@@ -48,7 +48,6 @@ def extractFeatures(inDir):
 
   data = pd.read_json(os.path.join(inDir, INSTANCES), dtype={'id':str}, lines=True)
   data['postText'] = data['postText'].apply(lambda x: x[0])
-  data.sort_values(['id'])
 
   features = pd.DataFrame()
   features['id'] = data['id']
@@ -56,8 +55,7 @@ def extractFeatures(inDir):
   if (os.path.isfile(os.path.join(inDir, TRUTH))):
     print("Truth file found")
     truth_data = pd.read_json(os.path.join(inDir, TRUTH), dtype={'id':str}, lines=True)
-    truth_data.sort_values(['id'])
-    features['truthClass'] = truth_data['truthClass']
+    features = features.merge(truth_data[['id', 'truthClass']], on = 'id')
 
   fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
 
