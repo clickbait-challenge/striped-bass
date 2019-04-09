@@ -27,12 +27,6 @@ import re
     "truthMode": <number in [0,1]>,
     "truthClass": "clickbait | no-clickbait"
   }
-
-  ### Fields your classifier should write into a results.jsonl file
-  {
-    "id": "<instance id>",
-    "clickbaitScore": <number in [0,1]>
-  }
 '''
 
 INSTANCES = 'instances.jsonl'
@@ -45,21 +39,29 @@ truth_data = None
 
 def compute_features(instance, truth_data):
     features = [instance['id']]
+    
+    fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
+    for field in fields:
+      field_data = ''
+      # postText is an array with one field, so extract data
+      if isinstance(instance[field], list):
+        field_data = instance[field][0]
+      else:
+        field_data = instance[field]
+      
+      # Single field features
+      features.append(char_length(field_data))
+      features.append(word_length(field_data))
+      features.append(field_data.count('?'))
+      features.append(field_data.count('!'))
+      # Amount of hashtags
+      features.append(len(re.findall(r"(?<!#)#(?![#\s])", field_data)))
+      # Starts with number or not
+      features.append(len(re.findall(r"^\d.*", field_data)))
 
-    #Char lengths
-    features.append(char_length(instance['postText'][0]))
-    features.append(char_length(instance['targetTitle']))
-    features.append(char_length(instance['targetDescription']))
-    features.append(char_length(instance['targetKeywords']))
-
-    #Word lenghts
-    features.append(word_length(instance['postText'][0]))
-    features.append(word_length(instance['targetTitle']))
-    features.append(word_length(instance['targetDescription']))
-    features.append(word_length(instance['targetKeywords']))
+    # Two field features
 
     #Word / char distance
-    fields = ['postText', 'targetTitle', 'targetDescription', 'targetKeywords']
     for i in range(len(fields)):
         for j in range(i+1, len(fields)):
             a = fields[i]
@@ -73,19 +75,9 @@ def compute_features(instance, truth_data):
                 features.append(distance(char_length(instance[a]), char_length(instance[b])))
                 features.append(distance(word_length(instance[a]), word_length(instance[b])))
     
-    for field in fields:
-      print(field)
-      if isinstance(instance[field], list):
-        field = instance[field][0]
-        print(field)
+    
 
-
-      features.append(field.count('?'))
-      features.append(field.count('!'))
-      features.append(len(re.findall(r"(?<!#)#(?![#\s])", field)))
-      features.append(len(re.findall(r"^\d.*", field)))
-
-
+    # Add truth if available
     if truth_data is not None:
       features.append(truth_data.loc[truth_data['id'] == instance['id'], 'truthClass'].item())
 
@@ -97,16 +89,7 @@ def computeFeatureHeader():
 
   for f in fields:
     header.append("chars_" + f)
-
-  for f in fields:
     header.append("words_" + f)
-
-  for i in range(len(fields)):
-      for j in range(i+1, len(fields)):
-        header.append("diff_chars_"+fields[i]+fields[j])
-        header.append("diff_words_"+fields[i]+fields[j])
-  
-  for f in fields:
     # Amount of ?
     header.append("#?_" + f)
     # Amount of !
@@ -115,6 +98,11 @@ def computeFeatureHeader():
     header.append("#hashtags_" + f)
     # Starts with number or not
     header.append("#^\\d_" + f)
+
+  for i in range(len(fields)):
+      for j in range(i+1, len(fields)):
+        header.append("diff_chars_"+fields[i]+'-'+fields[j])
+        header.append("diff_words_"+fields[i]+'-'+fields[j])
 
   header.append("truthClass")
 
