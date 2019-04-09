@@ -2,16 +2,18 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import pandas as pd
 
 
-PATH_TO_INPUT = 'data-medium/instances.jsonl'
-TRUTH = 'data-medium/truth.jsonl'
+PATH_TO_INPUT = 'instances.jsonl'
+TRUTH = 'truth.jsonl'
 PATH_TO_FILE = 'features.csv'
 
 analyser = SentimentIntensityAnalyzer()
 
+
+#function that assign 1 to positive text 
 def sentiment_scores(sentence):
-    snt = analyser.polarity_scores(sentence)
-    return list(snt.keys())[list(snt.values()).index(max(snt.values()))]
-    #return 1 if score['pos'] > score['neg'] else 0
+    score = analyser.polarity_scores(sentence)
+    #return list(snt.keys())[list(snt.values()).index(max(snt.values()))]
+    return 1 if score['pos'] > score['neg'] else 0
 
 def main():
     df = pd.read_json(PATH_TO_INPUT, dtype={'id': str}, lines=True)
@@ -21,16 +23,11 @@ def main():
     features['id'] = df['id']
 
     fields = ['postText', 'targetTitle', 'targetDescription']
-    data3 = pd.DataFrame()
+   
+    for f in fields[0:2]:
+        features['sentiment' + f] = df[f].apply(sentiment_scores)
 
-    data3['id'] = df['id']
-
-    for f in fields:
-        data3['sentiment' +f] = df[f].apply(sentiment_scores)
-
-
-    #df['sentiment'] = df.postText.apply(sentiment_scores)
-    print(print(data3.head()))
+    print(features)
 
 
 
