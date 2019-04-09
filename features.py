@@ -4,6 +4,7 @@ import time
 import pandas as pd
 import re
 import nltk
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 '''
   ### Fields in instances.jsonl:
@@ -31,10 +32,16 @@ import nltk
 
 INSTANCES = 'instances.jsonl'
 TRUTH = 'truth.jsonl'
-
 FEATURES = 'features.csv'
 
+analyser = SentimentIntensityAnalyzer()
 
+
+def sentiment_scores(sentence):
+    score = analyser.polarity_scores(sentence)
+    return 1 if score['pos'] > score['neg'] else 0
+  
+  
 def tokenize_words(text):
     return nltk.word_tokenize(text)
 
@@ -120,6 +127,9 @@ def extractFeatures(inDir):
         features['#!_' + f] = data[f].apply(lambda x: x.count('!'))
         features['##_' + f] = data[f].apply(lambda x: len(re.findall(r"(?<!#)#(?![#\s])", x)))
         features['#^\d_' + f] = data[f].apply(lambda x: len(re.findall(r"^\d.*", x)))
+    
+    for y in fields[0:3]:
+        features['sentiment' + y] = data[y].apply(sentiment_scores)
 
     for x in fields_2:
         features['count_nn' + x] = data[x].apply(find_nn)
