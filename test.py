@@ -27,6 +27,7 @@ def testRandomForrest(test_file, outDir="./"):
     predictions = clf.predict(test)
 
     results = pd.DataFrame({'id':ids, 'clickbaitScore':predictions})
+    results['id'] = results['id'].astype(str)
     results.to_json(os.path.join(outDir, 'results.jsonl'), orient='records', lines=True)
 
     print("Random Forrest training {}".format(time.time() - start_time))
@@ -47,6 +48,7 @@ def testXGBoost(test_file, outDir="./"):
     predictions = booster.predict(dtest)
     
     results = pd.DataFrame({'id':ids, 'clickbaitScore':predictions})
+    results['id'] = results['id'].astype(str)
     results.to_json(os.path.join(outDir, 'results.jsonl'), orient='records', lines=True)
 
     print("XGBoost took {}".format(time.time() - start_time))
