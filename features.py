@@ -91,6 +91,9 @@ def extractFeatures(inDir):
     print("Starting feature generation")
     start_time = time.time()
 
+    nltk.download('punkt')
+    nltk.download('averaged_perceptron_tagger')
+    
     data = pd.read_json(os.path.join(inDir, INSTANCES), dtype={'id': str}, lines=True)
     data['postText'] = data['postText'].apply(lambda x: x[0])
 
