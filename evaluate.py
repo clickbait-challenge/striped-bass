@@ -49,12 +49,12 @@ def evaluateResults(predicted, actual, test):
   print(pd.crosstab(test['truthClass'], predicted, rownames=['actual'], colnames=['predicted']))
 
 
-def evaluateRandomForrest(test, train):
+def evaluateRandomForrest(test, train, feat_selection=[]):
     print("Starting RandomForrest eval")
     start_time = time.time()
 
-    clf = trainRandomForrest(EVAL_TRAIN)
-    results = testRandomForrest(EVAL_TEST)
+    clf = trainRandomForrest(EVAL_TRAIN, feat_selection)
+    results = testRandomForrest(EVAL_TEST, feat_selection=feat_selection)
 
     predicted = results['clickbaitScore']
     test = test.replace({"truthClass": {"no-clickbait":0, "clickbait":1}})
@@ -63,17 +63,17 @@ def evaluateRandomForrest(test, train):
     evaluateResults(predicted, actual, test)
     # Feature importance
     feature_importance = pd.DataFrame(list(zip(train.drop(['id', 'truthClass'], axis=1), clf.feature_importances_)))
-    feature_importance.to_csv('eval_forrest_feature_importance.csv', index=True)
+    feature_importance.to_csv('eval_forrest_feature_importance.csv', index=False)
 
     print("Random Forrest eval took {}".format(time.time() - start_time))
 
 
-def evaluateXGBoost(test, train):
+def evaluateXGBoost(test, train, feat_selection=[]):
     print("Starting XGBoost eval")
     start_time = time.time()
 
-    model = trainXGBoost(EVAL_TRAIN)
-    results = testXGBoost(EVAL_TEST)
+    model = trainXGBoost(EVAL_TRAIN, feat_selection)
+    results = testXGBoost(EVAL_TEST,  feat_selection=feat_selection)
 
     predicted = results['clickbaitScore']
 
@@ -91,8 +91,13 @@ def evaluateClassifiers():
     argv = sys.argv[1:]
     
     # If dir is specified recompute features
+    top_features = 0
+    feat_selection = []
     if len(argv) != 0:
-      extractFeatures(argv[0])
+      if argv[0].isdigit():
+        top_features = int(argv[0])
+      else:
+        extractFeatures(argv[0])
 
     # Load features and split in test/train
     data = pd.read_csv(FEATURES)
@@ -102,9 +107,17 @@ def evaluateClassifiers():
     train.to_csv(EVAL_TRAIN)
     test.to_csv(EVAL_TEST)
 
+    # Feature selection
+    if top_features != 0:
+      features = pd.read_csv('eval_forrest_feature_importance.csv', names=['feature', 'importance'], skiprows=1)
+      features.sort_values(by=['importance'], ascending=False, inplace=True)
+      feat_selection = features['feature'][:top_features].as_matrix()
+      print("USED TOP {} FEATURES".format(len(feat_selection)) , feat_selection)
+    
+
     # Evaluate both classifiers
-    evaluateRandomForrest(test, train)
-    evaluateXGBoost(test, train)
+    evaluateRandomForrest(test, train, feat_selection)
+    evaluateXGBoost(test, train, feat_selection)
 
 
 if __name__ == "__main__":

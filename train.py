@@ -11,7 +11,7 @@ RANDOM_FORREST_CLASSIFIER = 'randomforrest.joblib'
 XGBOOST_MODEL = 'xgboost.model'
 
 
-def trainRandomForrest(train_file):
+def trainRandomForrest(train_file, feat_selection=[]):
     print("Starting Training RandomForrest")
     start_time = time.time()
 
@@ -19,6 +19,9 @@ def trainRandomForrest(train_file):
     train.replace({"truthClass": {"no-clickbait":0, "clickbait":1}}, inplace = True)
     truth = train['truthClass']
     train.drop(columns=['id','truthClass'], axis = 1, inplace = True)
+
+    if len(feat_selection) is not 0:
+        train = train[feat_selection]
 
     clf = RandomForestClassifier()
     clf.fit(train, truth)
@@ -28,7 +31,7 @@ def trainRandomForrest(train_file):
     return clf
 
 
-def trainXGBoost(train_file):
+def trainXGBoost(train_file, feat_selection=[]):
     print("Starting Training XGBoost")
     start_time = time.time()
 
@@ -41,6 +44,9 @@ def trainXGBoost(train_file):
     params = {
         'objective': 'binary:hinge'
     }
+
+    if len(feat_selection) is not 0:
+        train = train[feat_selection]
 
     dtrain = xgb.DMatrix(train, label = truth)
     model = xgb.train(params, dtrain)

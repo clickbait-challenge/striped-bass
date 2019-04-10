@@ -93,7 +93,6 @@ def word_length(line):
 def distance(a, b):
     return abs(a - b)
 
-
 def extractFeatures(inDir):
     print("Starting feature generation")
     start_time = time.time()
@@ -129,7 +128,7 @@ def extractFeatures(inDir):
         features['#^\d_' + f] = data[f].apply(lambda x: len(re.findall(r"^\d.*", x)))
     
     for y in fields[0:3]:
-        features['sentiment' + y] = data[y].apply(sentiment_scores)
+        features['sentiment_' + y] = data[y].apply(sentiment_scores)
 
     for x in fields_2:
         features['count_nn' + x] = data[x].apply(find_nn)
@@ -143,10 +142,10 @@ def extractFeatures(inDir):
 
     for i in range(len(fields)):
         for j in range(i + 1, len(fields)):
-            features['d_chars_' + fields[i] + '-' + fields[j]] = distance(features["chars_" + fields[i]],
-                                                                          features['chars_' + fields[j]])
-            features['d_wrds_' + fields[i] + '-' + fields[j]] = distance(features["wrds_" + fields[i]],
-                                                                         features['wrds_' + fields[j]])
+            features['d_chars_' + fields[i] + '-' + fields[j]] = distance(features["chars_" + fields[i]], features['chars_' + fields[j]])
+            features['d_wrds_' + fields[i] + '-' + fields[j]] = distance(features["wrds_" + fields[i]], features['wrds_' + fields[j]])
+
+
 
     features.to_csv(FEATURES, index=False)
     print("Feature generation took {}".format(time.time() - start_time))
