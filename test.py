@@ -22,10 +22,14 @@ def testRandomForrest(test_file, outDir="./", feat_selection = []):
     test = pd.read_csv(test_file)
     
     ids = test['id']
-    test.drop(columns=['id','truthClass'], axis = 1, inplace = True)
+    test.drop(columns=['id'], axis = 1, inplace = True)
+
+    if 'truthClass' in test.columns:
+      test.drop(columns=['truthClass'], axis = 1, inplace = True)
+
 
     if len(feat_selection) is not 0:
-        test = test[feat_selection]
+      test = test[feat_selection]
         
     clf = joblib.load(RANDOM_FORREST_CLASSIFIER)
     predictions = clf.predict(test)
@@ -43,7 +47,10 @@ def testXGBoost(test_file, outDir="./", feat_selection = []):
 
     test = pd.read_csv(test_file)
     ids = test['id']
-    test.drop(columns=['id','truthClass'], axis = 1, inplace = True)
+    test.drop(columns=['id'], axis = 1, inplace = True)
+
+    if 'truthClass' in test.columns:
+      test.drop(columns=['truthClass'], axis = 1, inplace = True)
   
     if len(feat_selection) is not 0:
         test = test[feat_selection]

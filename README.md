@@ -29,6 +29,6 @@ To run the classsifier specify the `inputDir` containing `instances.jsonl`, the 
 
 ## Local evaluation
 ```python
-python evaluate.py dir
+python evaluate.py dir top_features
 ```
-Evaluate both classifiers, `dir` is an optional input to compute the features from. If not specified the current available features file is used.
+Evaluate both classifiers, `dir` is an optional input to compute the features from. If not specified the current available features file is used. `top_features` specifies the top most important features to be used.

@@ -93,11 +93,15 @@ def evaluateClassifiers():
     # If dir is specified recompute features
     top_features = 0
     feat_selection = []
-    if len(argv) != 0:
+    if len(argv) == 1:
       if argv[0].isdigit():
         top_features = int(argv[0])
       else:
         extractFeatures(argv[0])
+
+    if len(argv) == 2:
+        top_features = int(argv[0])
+        extractFeatures(argv[1])
 
     # Load features and split in test/train
     data = pd.read_csv(FEATURES)
